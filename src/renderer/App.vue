@@ -1,13 +1,14 @@
 <template>
   <div id="app">
-    <index-view v-on:help="onHelpEvent"></index-view>
-    <help-view v-if="isShowHelp" v-on:hide-help="onHideHelpEvent"></help-view>
+    <index-view v-on:help="onHelpEvent" v-on:empty-rage-level="onEmptyRageLevelEvent" v-on:new-storage="onNewStorageEvent"></index-view>
+    <help-view v-if="isShowHelp" v-on:hide-help="onHideHelpEvent" v-bind:page="helpPage"></help-view>
   </div>
 </template>
 
 <script>
   import IndexView from '@/views/IndexView.vue';
   import HelpView from '@/views/HelpView.vue';
+
   export default {
     name: 'rage-balancer',
     components: {
@@ -16,7 +17,8 @@
     },
     data: () => {
       return {
-        isShowHelp: false
+        isShowHelp: false,
+        helpPage: 'what'
       }
     },
     methods: {
@@ -25,6 +27,10 @@
       },
       onHideHelpEvent: function() {
         this.isShowHelp = false;
+      },
+      onNewStorageEvent: function() {
+        this.helpPage = 'new_storage';
+        this.isShowHelp = true;
       }
     }
   }
