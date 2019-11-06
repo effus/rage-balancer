@@ -53,6 +53,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "electron-store": "^5.1.0",
+    "load-yaml-file": "^0.2.0",
     "mini.css": "^3.0.1",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",

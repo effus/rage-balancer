@@ -10,8 +10,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   modules,
   plugins: [
-    createPersistedState(),
-    createSharedMutations()
+    createPersistedState()
   ],
-  strict: process.env.NODE_ENV !== 'production'
+  strict: false // process.env.NODE_ENV !== 'production'
 })

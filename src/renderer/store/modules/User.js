@@ -1,88 +1,82 @@
 import ElectronStore from 'electron-store';
 
+const Storage = new ElectronStore();
+
+const DefaultStorage = {
+    measures: []
+};
+
+const DefaultMeasure = {
+    time: null,
+    value: 0,
+    max: 10
+};
+
 const User = {
     state: {
         storage: null,
-        measures: [],
-        startedAt: null,
-        maxRageLevel: 0,
-        currentRageLevel: 0
+        measures: []
     },
     getters: {
-        getCurrentRageLevel: (state) => {
-            return state.currentRageLevel;
-        },
-        getMaxRageLevel: (state) => {
-            return state.maxRageLevel;
-        },
-        getStartedAt: (state) => {
-            return state.startedAt;
-        },
-        getStorage: (state) => {
-            return state.storage;
-        },
-        getMeasures: (state) => {
-            return state.measures;
+        getLastMeasure: (state) => {
+            console.debug('getLastMeasure', state.measures);
+            if (state.measures.length > 0) {
+                return state.measures[state.measures.length - 1];
+            }
+            return DefaultMeasure;
         }
     },
     mutations: {
-        RESET_CURRENT_RAGE_LEVEL: (state) => {
-            state.currentRageLevel = 0;
-            state.startedAt = new Date();
+        NEW_STORAGE: (state) => {
+            console.debug('NEW_STORAGE');
+            state.storage = Object.assign({}, DefaultMeasure);
         },
-        INCREMENT_CURRENT_RAGE_LEVEL: (state) => {
-            state.currentRageLevel++;
-            if (state.currentRageLevel > state.maxRageLevel) {
-                state.maxRageLevel = state.currentRageLevel;
+        FROM_STORAGE: (state) => {
+            console.debug('FROM_STORAGE');
+            state.storage = Storage.get('rage-storage');
+            if (state.storage && state.storage.measures) {
+                state.measures = state.storage.measures;
             }
         },
-        SET_MAX_RAGE_LEVEL: (state, payload) => {
-            state.maxRageLevel = payload;
+        TO_STORAGE: (state) => {
+            console.debug('TO_STORAGE');
+            state.storage.measures = state.measures;
+            Storage.set('rage-storage', state.storage);
         },
-        ADD_MEASURMENT: (state, payload) => {
-            state.measures.push({
-                startedAt: payload.startedAt,
-                level: payload.level,
-                max: payload.max
-            });
+        NEW_MEASURE: (state) => {
+            console.debug('NEW_MEASURE');
+            let measure = Object.assign({}, DefaultMeasure);
+            measure.time = new Date();
+            state.measures.push(measure);
         },
-        SET_MEASURMENT: (state, payload) => {
-            state.measures = payload;
-        },
-        UPDATE_STORAGE: (state) => {
-            state.storage.set('measures', state.measures);
-        },
-        LOAD_STORAGE: (state) => {
-            if (state.storage === null) {
-                state.storage = new ElectronStore();
+        INCREASE_RAGE: (state, lastMeasure) => {
+            console.debug('state.getters', lastMeasure);
+            lastMeasure.value++;
+            if (lastMeasure.value > lastMeasure.max) {
+                lastMeasure.max = lastMeasure.value;
             }
-            const measures = state.storage.get('measures');
-            state.measures = Array.isArray(measures) ? measures : [];
+            state.measures[state.measures.length - 1] = lastMeasure;
         }
     },
     actions: {
-        loadStorage: (state) => {
-            state.$commit('LOAD_STORAGE');
-        },
-        startNewMetering: (state) => {
-            /*if (state.getters.currentRageLevel > 0) {
-                state.$commit('ADD_MEASURMENT', {
-                    startedAt: state.getters.getStartedAt,
-                    level: state.getters.getCurrentRageLevel,
-                    max: state.getters.getMaxRageLevel
-                });
-                state.$commit('UPDATE_STORAGE');
-                state.$commit('RESET_CURRENT_RAGE_LEVEL');
-            }*/
-        },
-        incrementRage: (state) => {
-            const measures = state.getters.getStorage.get('measures');
-            if (typeof measures === 'undefined') {
-                state.$commit('SET_MEASURMENT', []);
-                state.$commit('SET_MEASURMENT', []);
-                state.maxRageLevel = 10;
+        LoadStorage: (state) => {
+            state.commit('FROM_STORAGE');
+            if (state.getters.getLastMeasure.time === null) {
+                // новое хранилище
+                state.commit('NEW_STORAGE');
+                state.commit('TO_STORAGE');
+                console.debug('New storage created');
             }
-            state.$commit('INCREMENT_CURRENT_RAGE_LEVEL');
+        },
+        IncreaseRage: (state) => {
+            if (state.getters.getLastMeasure.time === null) {
+                state.commit('NEW_MEASURE');
+                console.debug('NEW_MEASURE');
+            }
+            state.commit('INCREASE_RAGE', {
+                lastMeasure: state.getters.getLastMeasure
+            });
+            state.commit('TO_STORAGE');
         }
     }
 }

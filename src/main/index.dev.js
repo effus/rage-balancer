@@ -1,3 +1,6 @@
+import electronDebug from 'electron-debug';
+import loadYamlFile from 'load-yaml-file';
+
 /**
  * This file is used specifically and only for development. It installs
  * `electron-debug` & `vue-devtools`. There shouldn't be any need to
@@ -8,7 +11,13 @@
 /* eslint-disable */
 
 // Install `electron-debug` with `devtron`
-require('electron-debug')({ showDevTools: false })
+loadYamlFile('src/config.yml').then((conf) => {
+  if (conf.window.devTools === true) {
+    electronDebug({ showDevTools: true });
+  }
+});
+
+
 
 // Install `vue-devtools`
 require('electron').app.on('ready', () => {

@@ -1,0 +1,26 @@
+{
+    "RageButton": {
+        "en": "Rage button",
+        "ru": "Кнопка гнева"
+    },
+    "WhatButton": {
+        "en": "What ?",
+        "ru": "Што ?"
+    },
+    "WhatButtonHint": {
+        "en": "What does it all mean? (help me)",
+        "ru": "Что это всё значит? (памагите)"
+    },
+    "StartNewButton": {
+        "en": "Start new",
+        "ru": "Заново"
+    },
+    "StartNewButtonHint": {
+        "en": "This will reset current rage level for new metering",
+        "ru": "Сброс текущего уровня гнева для нового замера"
+    },
+    "HelpPage_what": {
+        "en": "imgs/help-en--assets.png",
+        "ru": "assets/help-ru.png"
+    }
+}

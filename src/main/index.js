@@ -1,4 +1,5 @@
 import { app, BrowserWindow } from 'electron'
+import loadYamlFile from 'load-yaml-file';
 
 /**
  * Set `__static` path to static files in production
@@ -13,25 +14,29 @@ const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
 
-function createWindow () {
-  /**
-   * Initial window options
-   */
-  mainWindow = new BrowserWindow({
-    height: 400,
-    useContentSize: true,
-    width: 500,
-    resizable: false,
-    maximazable: false
-  })
+function createWindow (event) {
 
-  mainWindow.setMenu(null);
+  loadYamlFile('src/config.yml').then((conf) => {
 
-  mainWindow.loadURL(winURL)
+    mainWindow = new BrowserWindow({
+      width: conf.window.weight, // default: 500
+      height: conf.window.height, // default: 400
+      useContentSize: true,
+      resizable: conf.window.resizable,
+      maximazable: conf.window.maximize
+    })
 
-  mainWindow.on('closed', () => {
-    mainWindow = null
-  })
+    mainWindow.setMenu(null);
+
+    mainWindow.loadURL(winURL)
+
+    mainWindow.on('closed', () => {
+      mainWindow = null
+    })
+
+  }).catch(console.log);
+
+  
 }
 
 app.on('ready', createWindow)
@@ -44,7 +49,7 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
   if (mainWindow === null) {
-    createWindow()
+      createWindow(config);
   }
 })
 
