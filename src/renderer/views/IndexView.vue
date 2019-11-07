@@ -19,18 +19,23 @@
             </div>
         </div>
       </div>
-      <div class="row">
+      <div class="row" v-if="isAllowCoolDownBtn && isDisplayCoolDownBtn && !isCoolDown">
         <div class="col-sm-12">
             <button class="cool-down"> Cool down </button>
         </div>
       </div>
     </main>
+    <cool-down v-if="isCoolDown"></cool-down>
   </div>
 </template>
 
 <script>
 import LanguageSelector from '../components/LanguageSelector.vue';
 import {LanguageHelper} from '../helpers/LanguageHelper.js';
+import Vue from 'vue'
+import VueTimers from 'vue-timers';
+Vue.use(VueTimers);
+
 export default {
     name: 'indexView',
     components: {
@@ -48,11 +53,20 @@ export default {
         locale: {
             type: String,
             default: 'en'
+        },
+        isAllowCoolDownBtn: {
+            type: Boolean,
+            default: false
+        },
+        isCoolDown: {
+            type: Boolean,
+            default: false
         }
     },
     data: () => {
         return {
-            LanguageHelper
+            LanguageHelper,
+            isDisplayCoolDownBtn: false
         }
     },
     computed: {
@@ -62,6 +76,12 @@ export default {
     },
     mounted: function() {
         this.LanguageHelper.setLocale(this.locale);
+        if (this.isAllowCoolDownBtn) {
+            this.isDisplayCoolDownBtn = true;
+        }
+    },
+    timers: {
+        coolDown: { time: 3000 }
     },
     methods: {
         onClickHelpBtn: function() {
@@ -75,9 +95,18 @@ export default {
         },
         onClickRageButton: function() {
             this.$emit('rage');
+            this.$timer.stop('coolDown');
+            this.$timer.start('coolDown');
+            this.isDisplayCoolDownBtn = false;
         },
         onSwitchLanguage: function(payload) {
             this.$emit('switch-language', payload);
+        },
+        coolDown: function() {
+            this.isDisplayCoolDownBtn = true;
+        },
+        onClickCoolDown: function() {
+            this.$emit('cool-down');
         }
     },
     watch: {
@@ -103,6 +132,9 @@ export default {
             @if $inverse == 1 {
                 color:rgb(255, 255, 255);
                 border: 1px solid rgba(255, 255, 255, 0.473);
+                &:active {
+                    box-shadow: 0 0 35px rgba(255, 0, 0, 1);
+                }
             } @else {
                 color:rgb(0, 0, 0);
                 border: 1px solid rgb(0, 0, 0);
@@ -121,11 +153,20 @@ export default {
     &.white {
         @include theme(rgb(255, 255, 255), 0);
     }
+    &.white-white-yellow {
+        @include theme(rgb(255, 247, 231), 0);
+    }
     &.white-yellow {
-        @include theme(rgb(255, 255, 205), 0);
+        @include theme(rgb(255, 238, 205), 0);
+    }
+    &.white-yellow-yellow {
+        @include theme(rgb(253, 212, 158), 0);
     }
     &.yellow {
-        @include theme(rgb(255, 255, 124), 0);
+        @include theme(rgb(255, 198, 124), 0);
+    }
+    &.yellow-orange {
+        @include theme(rgb(218, 142, 71), 1);
     }
     &.yellow-red {
         @include theme(rgb(138, 69, 6), 1);
