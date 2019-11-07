@@ -1,15 +1,10 @@
-import ElectronStore from 'electron-store';
 
-const Storage = new ElectronStore();
-
-const DefaultStorage = {
-    measures: []
-};
-
-const DefaultMeasure = {
-    time: null,
-    value: 0,
-    max: 10
+const DefaultMeasure = () => {
+    return {
+        time: null,
+        value: 0,
+        max: 10
+    }
 };
 
 const User = {
@@ -18,65 +13,58 @@ const User = {
         measures: []
     },
     getters: {
+        /**
+         * @return {{
+         *  time: String
+         *  value: Number
+         *  max: Number
+         * }}
+         */
         getLastMeasure: (state) => {
-            console.debug('getLastMeasure', state.measures);
             if (state.measures.length > 0) {
                 return state.measures[state.measures.length - 1];
             }
-            return DefaultMeasure;
+            console.debug('getLastMeasure.default');
+            return DefaultMeasure();
         }
     },
     mutations: {
-        NEW_STORAGE: (state) => {
-            console.debug('NEW_STORAGE');
-            state.storage = Object.assign({}, DefaultMeasure);
-        },
-        FROM_STORAGE: (state) => {
-            console.debug('FROM_STORAGE');
-            state.storage = Storage.get('rage-storage');
-            if (state.storage && state.storage.measures) {
-                state.measures = state.storage.measures;
-            }
-        },
-        TO_STORAGE: (state) => {
-            console.debug('TO_STORAGE');
-            state.storage.measures = state.measures;
-            Storage.set('rage-storage', state.storage);
-        },
         NEW_MEASURE: (state) => {
             console.debug('NEW_MEASURE');
-            let measure = Object.assign({}, DefaultMeasure);
+            let measure = DefaultMeasure();
             measure.time = new Date();
+            if (state.measures.length > 0) {
+                const lastMeasure = state.measures[state.measures.length - 1];
+                measure.max = lastMeasure.max;
+            }
             state.measures.push(measure);
         },
-        INCREASE_RAGE: (state, lastMeasure) => {
-            console.debug('state.getters', lastMeasure);
+        INCREASE_RAGE: (state) => {
+            const lastMeasure = state.measures[state.measures.length - 1];
+            console.debug('INCREASE_RAGE', lastMeasure);
             lastMeasure.value++;
             if (lastMeasure.value > lastMeasure.max) {
                 lastMeasure.max = lastMeasure.value;
             }
             state.measures[state.measures.length - 1] = lastMeasure;
+        },
+        RESET: (state) => {
+            console.debug('RESET');
+            state.measures = [];
         }
     },
     actions: {
-        LoadStorage: (state) => {
-            state.commit('FROM_STORAGE');
-            if (state.getters.getLastMeasure.time === null) {
-                // новое хранилище
-                state.commit('NEW_STORAGE');
-                state.commit('TO_STORAGE');
-                console.debug('New storage created');
-            }
+        ResetStore: (state) => {
+            state.commit('RESET');
+        },
+        NewMeasure: (state) => {
+            state.commit('NEW_MEASURE');
         },
         IncreaseRage: (state) => {
             if (state.getters.getLastMeasure.time === null) {
                 state.commit('NEW_MEASURE');
-                console.debug('NEW_MEASURE');
             }
-            state.commit('INCREASE_RAGE', {
-                lastMeasure: state.getters.getLastMeasure
-            });
-            state.commit('TO_STORAGE');
+            state.commit('INCREASE_RAGE');
         }
     }
 }

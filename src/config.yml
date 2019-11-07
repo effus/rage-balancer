@@ -1,7 +1,7 @@
 window:
   weight: 800
   height: 800
-  resizable: false
+  resizable: true
   maximize: false
   devTools: true
 locale: en

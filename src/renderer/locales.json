@@ -19,6 +19,14 @@
         "en": "This will reset current rage level for new metering",
         "ru": "Сброс текущего уровня гнева для нового замера"
     },
+    "ResetButton": {
+        "en": "Reset",
+        "ru": "Сброс"
+    },
+    "ResetButtonHint": {
+        "en": "Reset stored data",
+        "ru": "Сброс сохраненных данных"
+    },
     "HelpPage_what": {
         "en": "imgs/help-en--assets.png",
         "ru": "assets/help-ru.png"

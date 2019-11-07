@@ -1,14 +1,19 @@
 <template>
   <div id="app">
     <index-view 
-      v-bind:theme="theme" 
+      v-bind:theme="theme"
+      v-bind:saturation="saturation"
       v-bind:locale="locale"
-      v-on:rage="onRageBtnClick" 
-      v-on:new="onNewRageMeterClick" 
-      v-on:help="onHelpBtnClick"
+      v-on:rage="onIncreaseRageEvent" 
+      v-on:new="onNewRageMeasureEvent" 
+      v-on:help="onShowHelpEvent"
       v-on:switch-language="onSwitchLanguage"
+      v-on:reset="onResetEvent"
       ></index-view>
     <help-view v-if="isShowHelp" v-on:hide-help="onHideHelpEvent" v-bind:page="helpPage"></help-view>
+    {{$store.getters.getLastMeasure}}
+    {{getRagePercent}}%
+    {{theme}}
   </div>
 </template>
 
@@ -17,6 +22,15 @@
   import HelpView from '@/views/HelpView.vue';
   import loadYamlFile from 'load-yaml-file';
   import { mapState } from "vuex";
+
+  const RageThemeMapping = [
+    {until: 25, theme: 'white'},
+    {until: 50, theme: 'white-yellow'},
+    {until: 75, theme: 'yellow'},
+    {until: 85, theme: 'yellow-red'},
+    {until: 95, theme: 'red'},
+    {until: 100, theme: 'black'}
+  ];
 
   export default {
     name: 'rage-balancer',
@@ -28,13 +42,30 @@
       return {
         isShowHelp: false,
         helpPage: 'what',
-        theme: 'white',
         locale: 'en'
+      }
+    },
+    computed: {
+      getRagePercent: function() {
+        const lastMeasure = this.$store.getters.getLastMeasure;
+        return Math.round(lastMeasure.value / lastMeasure.max * 100);
+      },
+      theme: function() {
+        let prevPercent = 0;
+        for (let i in RageThemeMapping) {
+          if (this.getRagePercent >= prevPercent && this.getRagePercent <= RageThemeMapping[i].until) {
+            return RageThemeMapping[i].theme;
+          }
+          prevPercent = RageThemeMapping[i].until;
+        }
+        return 'white';
+      },
+      saturation: function() {
+        return 1;
       }
     },
     mounted: function() {
       this.loadConfig();
-      this.$store.dispatch('LoadStorage');
     },
     methods: {
       loadConfig: function() {
@@ -45,17 +76,21 @@
       onHideHelpEvent: function() {
         this.isShowHelp = false;
       },
-      onRageBtnClick: function() {
+      onIncreaseRageEvent: function() {
         this.$store.dispatch('IncreaseRage');
       },
-      onNewRageMeterClick: function() {
-
+      onNewRageMeasureEvent: function() {
+        this.$store.dispatch('NewMeasure');
       },
-      onHelpBtnClick: function() {
+      onShowHelpEvent: function() {
         this.isShowHelp = true;
       },
       onSwitchLanguage: function(payload) {
         this.locale = payload;
+      },
+      onResetEvent: function() {
+        console.debug('reset');
+        this.$store.dispatch('ResetStore');
       }
     }
   }

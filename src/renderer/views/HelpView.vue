@@ -1,6 +1,6 @@
 <template>
     <article id="help-view">
-        <img :src="getImgPath" alt="Help img 1" @click="onClickHelpImg" />
+        <img src="../assets/help-en.png" alt="Help img 1" @click="onClickHelpImg" />
         <!-- img v-if="page === 'new_storage'" src="../assets/new-storage-en.png" alt="Help img 3" @click="onClickHelpImg" / -->
     </article>
 </template>
