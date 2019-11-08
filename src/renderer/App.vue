@@ -6,6 +6,7 @@
       v-bind:locale="locale"
       v-bind:is-allow-cool-down-btn="getRagePercent > 5"
       v-bind:is-cool-down="isCoolDown"
+      v-bind:click-count="$store.getters.getLastMeasure.value"
       v-on:rage="onIncreaseRageEvent" 
       v-on:new="onNewRageMeasureEvent" 
       v-on:help="onShowHelpEvent"
@@ -14,18 +15,13 @@
       v-on:cool-down="onCoolDownEvent"
       ></index-view>
     <help-view v-if="isShowHelp" v-on:hide-help="onHideHelpEvent" v-bind:page="helpPage"></help-view>
-    {{$store.getters.getLastMeasure.value}}
-    {{getRagePercent}}%
-    {{theme}}
-    {{getRagePercent > 25}}
-    <progress v-if="getRagePercent > 0" :value="getRagePercent" max="100" :class="{'inline':getRagePercent < 99, 'secondary':getRagePercent >= 99}"></progress>
+    <progress v-if="getRagePercent > 0 && !isCoolDown" :value="getRagePercent" max="100" :class="{'ragebar':true, 'inline':getRagePercent < 99, 'secondary':getRagePercent >= 99}"></progress>
   </div>
 </template>
 
 <script>
   import IndexView from '@/views/IndexView.vue';
   import HelpView from '@/views/HelpView.vue';
-  import CoolDown from '@/views/CoolDownView.vue';
   import loadYamlFile from 'load-yaml-file';
   import { mapState } from "vuex";
 
@@ -45,8 +41,7 @@
     name: 'rage-balancer',
     components: {
       IndexView,
-      HelpView,
-      CoolDown
+      HelpView
     },
     data: () => {
       return {
@@ -91,6 +86,7 @@
         this.$store.dispatch('IncreaseRage');
       },
       onNewRageMeasureEvent: function() {
+        this.isCoolDown = false;
         this.$store.dispatch('NewMeasure');
       },
       onShowHelpEvent: function() {
@@ -100,6 +96,7 @@
         this.locale = payload;
       },
       onResetEvent: function() {
+        this.isCoolDown = false;
         this.$store.dispatch('ResetStore');
       },
       onCoolDownEvent: function() {
@@ -115,11 +112,11 @@
 <style lang="scss">
 body {
     overflow: hidden;
-    progress {
+    progress.ragebar {
       position: absolute;
       top: 18px;
       left: -7px;
-      width: 100% !important;
+      width: 500px !important;
       right: 0;
       vertical-align: top;
     }

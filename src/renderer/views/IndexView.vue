@@ -11,27 +11,30 @@
             </div>
         </div>
     </header>
+
+    <cool-down-view v-if="isCoolDown" v-bind:start-count="clickCount" v-bind:clicks="coolDownClicks"></cool-down-view>
+
     <main class="btn-area">
-      <div class="row">
+      <div class="row" v-if="!isCoolDown">
         <div class="col-sm-12">
             <div class="button-group">
                 <button class="doc" @click="onClickRageButton">{{ LanguageHelper.t('RageButton') }}</button>
             </div>
         </div>
       </div>
-      <div class="row" v-if="isAllowCoolDownBtn && isDisplayCoolDownBtn && !isCoolDown">
+      <div class="row" v-if="isAllowCoolDownBtn && isDisplayCoolDownBtn" @click="onClickCoolDown">
         <div class="col-sm-12">
-            <button class="cool-down"> Cool down </button>
+            <button class="cool-down"> {{ LanguageHelper.t('CoolDownButton') }} </button>
         </div>
       </div>
     </main>
-    <cool-down v-if="isCoolDown"></cool-down>
   </div>
 </template>
 
 <script>
 import LanguageSelector from '../components/LanguageSelector.vue';
 import {LanguageHelper} from '../helpers/LanguageHelper.js';
+import CoolDownView from '@/views/CoolDownView.vue';
 import Vue from 'vue'
 import VueTimers from 'vue-timers';
 Vue.use(VueTimers);
@@ -39,7 +42,8 @@ Vue.use(VueTimers);
 export default {
     name: 'indexView',
     components: {
-        LanguageSelector
+        LanguageSelector, 
+        CoolDownView
     },
     props: {
         theme: {
@@ -61,12 +65,17 @@ export default {
         isCoolDown: {
             type: Boolean,
             default: false
+        },
+        clickCount: {
+            type: Number,
+            default: 0
         }
     },
     data: () => {
         return {
             LanguageHelper,
-            isDisplayCoolDownBtn: false
+            isDisplayCoolDownBtn: false,
+            coolDownClicks: 0
         }
     },
     computed: {
@@ -104,9 +113,15 @@ export default {
         },
         coolDown: function() {
             this.isDisplayCoolDownBtn = true;
+            this.coolDownClicks = 0; 
         },
         onClickCoolDown: function() {
-            this.$emit('cool-down');
+            this.coolDownClicks++;
+            if (this.coolDownClicks >= this.clickCount) {
+                this.$emit('new');
+            } else {
+                this.$emit('cool-down');
+            }
         }
     },
     watch: {
@@ -122,8 +137,6 @@ export default {
     width: 500px;
     height: 400px;
     border: 1px solid grey;
-    -webkit-transition: background-color 1000ms linear;
-    -ms-transition: background-color 1000ms linear;
     transition: background-color 1000ms linear;
     @mixin theme($color, $inverse) {
         background-color: $color;
@@ -167,12 +180,24 @@ export default {
     }
     &.yellow-orange {
         @include theme(rgb(218, 142, 71), 1);
+        .cool-down {
+            border: 1px solid rgb(255, 255, 255);
+            color:rgb(255, 255, 255);
+        }
     }
     &.yellow-red {
         @include theme(rgb(138, 69, 6), 1);
+        .cool-down {
+            border: 1px solid rgb(255, 255, 255);
+            color:rgb(255, 255, 255);
+        }
     }
     &.red {
         @include theme(rgb(146, 0, 0), 1);
+        .cool-down {
+            border: 1px solid rgb(136, 203, 230);
+            color:rgb(136, 203, 230);
+        }
     }
     &.black {
         @include theme(rgb(31, 0, 0), 1);

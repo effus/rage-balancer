@@ -27,6 +27,14 @@
         "en": "Reset stored data",
         "ru": "Сброс сохраненных данных"
     },
+    "CoolDownButton": {
+        "en": "Cool down",
+        "ru": "Остынь"
+    },
+    "CoolDownAdvice1": {
+        "en": "Click the button on each exhale",
+        "ru": "Кликай по кнопке на каждый выдох"
+    },
     "HelpPage_what": {
         "en": "imgs/help-en--assets.png",
         "ru": "assets/help-ru.png"
