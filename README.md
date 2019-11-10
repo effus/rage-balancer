@@ -1,4 +1,6 @@
-# Rage balancer
+# Rage balancer - electron based
+
+![Electron](https://avatars3.githubusercontent.com/u/13409222?s=200&v=4)
 
 ## Installation && Build
 
