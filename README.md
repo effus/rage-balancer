@@ -1,4 +1,4 @@
-# Rage balancer - electron based
+# Rage balancer - Vue.js + Electron
 
 <img src="https://avatars3.githubusercontent.com/u/13409222?s=200&v=4" alt="" height="100" /> <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/vue/vue.png"  height="100" />
 
